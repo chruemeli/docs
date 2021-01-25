@@ -22,3 +22,32 @@ jobs:
 
       - name: Build
         run: ./build.sh
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: website
+          path: public
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH keys and known_hosts
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-keyscan docs.chruemeli.io >> ~/.ssh/known_hosts
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: website
+
+      - name: Upload artifacts
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: scp -r website/* ${{ secrets.SSH_USER }}@/home/${{ secrets.SSH_USER }}/www/chruemeli-docs/
