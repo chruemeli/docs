@@ -52,4 +52,4 @@ jobs:
       - name: Upload artifacts
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: scp -r website/* ${{ secrets.SSH_USER }}@/home/${{ secrets.SSH_USER }}/www/chruemeli-docs/
+        run: scp -r website/* ${{ secrets.SSH_USER }}@docs.chruemeli.io:/home/${{ secrets.SSH_USER }}/www/chruemeli-docs/
